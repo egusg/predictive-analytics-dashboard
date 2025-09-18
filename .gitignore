@@ -4,9 +4,19 @@ __pycache__/
 *$py.class
 .venv/
 .ipynb_checkpoints
+
+# Ignore all data and results by default
 data/*
 !data/.gitkeep
 results/*
 !results/.gitkeep
+
+# allow result artifacts
+!results/*.png
+!results/*.html
+!results/*.json
+!results/*.txt
+
+# Misc
 .DS_Store
 Thumbs.db
