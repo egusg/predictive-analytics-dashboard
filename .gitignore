@@ -17,6 +17,12 @@ results/*
 !results/*.json
 !results/*.txt
 
+# allow result artifacts (any run folder)
+!results/**/*.png
+!results/**/*.html
+!results/**/*.json
+!results/**/*.txt
+
 # Misc
 .DS_Store
 Thumbs.db
