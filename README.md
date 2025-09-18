@@ -72,14 +72,19 @@ Common frequencies:
 - You can swap in `Prophet`/`NeuralProphet`/`statsmodels` SARIMAX later if you want to extend it.
 - The interactive Plotly output is saved to `results/interactive_forecast.html` — great for portfolio demos.
 
-## Forecast Example
+### ISP Internet Traffic Dataset
+This dataset simulates **daily ISP network traffic in Gbps** with an upward trend, weekly usage patterns, and random fluctuations.  
+It represents how ISPs (like Bell) use forecasting for **capacity planning and network optimization**.
 
-Here’s a sample output from the forecasting pipeline:
+![ISP Forecast](results/isp_traffic/forecast_plot.png)
 
-![Forecast Plot](results/forecast_plot.png)
+## Forecast Examples
 
-The red line (AutoARIMA) closely matches the actual test data (orange), while the green baseline model lags behind. 
-This demonstrates how AI models can improve forecasting accuracy.
+### Synthetic Sample Dataset
+This dataset is automatically included in the repo to demonstrate functionality.  
+It simulates a simple trend with seasonality and noise.
+
+![Sample Forecast](results/sample/forecast_plot.png)
 
 ---
 
