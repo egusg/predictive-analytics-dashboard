@@ -6,6 +6,8 @@ from pmdarima import auto_arima
 import plotly.graph_objects as go
 from pathlib import Path
 from utils import load_series, train_test_split_ts
+from prophet import Prophet
+
 
 def mape(y_true, y_pred):
     y_true, y_pred = np.array(y_true), np.array(y_pred)
@@ -17,6 +19,19 @@ def naive_seasonal_forecast(train, horizon, season):
     last_season = train.iloc[-season:]
     reps = int(np.ceil(horizon / season))
     return np.tile(last_season.values, reps)[:horizon]
+
+def fit_prophet_and_forecast(df, target_col, horizon, freq):
+    # Prophet expects columns ds (datetime) and y (numeric)
+    tmp = df.reset_index().rename(columns={df.index.name: "ds", target_col: "y"})
+    m = Prophet(daily_seasonality=(freq=="D"), weekly_seasonality=(freq in ["D","H"]),
+                yearly_seasonality=True)
+    m.fit(tmp)
+    future = m.make_future_dataframe(periods=horizon, freq=freq)
+    forecast = m.predict(future)
+    # take the last horizon predictions aligned to your test index
+    yhat = forecast.set_index("ds")["yhat"].loc[df.index[-horizon:]]
+    return m, yhat.values
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -45,6 +60,10 @@ def main():
                              suppress_warnings=True, error_action="ignore")
     arima_pred = arima_model.predict(n_periods=horizon)
 
+    # Prophet
+    prophet_model, prophet_pred = fit_prophet_and_forecast(df, args.target_col, horizon, args.freq)
+
+
     # Metrics
     metrics = {
         "baseline": {
@@ -56,6 +75,11 @@ def main():
             "MAE": float(mean_absolute_error(y_test, arima_pred)),
             "RMSE": float(np.sqrt(mean_squared_error(y_test, arima_pred))),
             "MAPE": float(mape(y_test, arima_pred))
+        },
+        "prophet": {
+            "MAE": float(mean_absolute_error(y_test, prophet_pred)),
+            "RMSE": float(np.sqrt(mean_squared_error(y_test, prophet_pred))),
+            "MAPE": float(mape(y_test, prophet_pred))
         }
     }
 
@@ -72,6 +96,7 @@ def main():
     plt.plot(test_df.index, y_test, label="test")
     plt.plot(test_df.index, baseline_pred, label="naive seasonal")
     plt.plot(test_df.index, arima_pred, label="auto_arima")
+    plt.plot(test_df.index, prophet_pred, label="prophet")
     plt.legend(); plt.title("Forecast Comparison")
     plt.tight_layout(); plt.savefig(out_dir / "forecast_plot.png", dpi=160); plt.close()
 
@@ -81,6 +106,7 @@ def main():
     fig.add_trace(go.Scatter(x=test_df.index, y=y_test, name="test"))
     fig.add_trace(go.Scatter(x=test_df.index, y=baseline_pred, name="naive seasonal"))
     fig.add_trace(go.Scatter(x=test_df.index, y=arima_pred, name="auto_arima"))
+    fig.add_trace(go.Scatter(x=test_df.index, y=prophet_pred, name="prophet"))
     fig.write_html(str(out_dir / "interactive_forecast.html"), include_plotlyjs="cdn")
 
     # Save ARIMA summary
@@ -89,6 +115,12 @@ def main():
 
     print(f"Done. See {out_dir}/ for outputs.")
     print(json.dumps(metrics, indent=2))
+
+    # Save Prophet summary
+    with open(out_dir / "model_summary.txt", "a") as f:
+        f.write("\n\n[Prophet]\n")
+        f.write(f"Components: daily={args.freq=='D'}, weekly={args.freq in ['D','H']}, yearly=True\n")
+
 
 if __name__ == "__main__":
     main()
