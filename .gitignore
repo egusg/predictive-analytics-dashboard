@@ -18,12 +18,3 @@ Thumbs.db
 # Data: ignore raw, keep placeholder
 data/*
 !data/.gitkeep
-
-# Results: ignore by default, but allow artifacts in any subfolder
-results/**
-!results/.gitkeep
-!results/**/              # <-- UNIGNORE all subdirectories so Git can traverse them
-!results/**/*.png
-!results/**/*.html
-!results/**/*.json
-!results/**/*.txt
