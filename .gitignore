@@ -1,31 +1,25 @@
-# -------------------------
-# Python cache and bytecode
-# -------------------------
+# Python cache / bytecode
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environment
+# Virtual environments
 .venv/
 env/
 venv/
 
-# Jupyter notebook checkpoints
+# Jupyter checkpoints
 .ipynb_checkpoints
 
-# OS-specific files
+# OS files
 .DS_Store
 Thumbs.db
 
-# -------------------------
-# Data & Results
-# -------------------------
-
-# Ignore everything in data except .gitkeep
+# Data: ignore raw, keep placeholder
 data/*
 !data/.gitkeep
 
-# Ignore everything in results except .gitkeep and allowed artifacts
+# Results: ignore by default, but allow artifacts in any subfolder
 results/*
 !results/.gitkeep
 !results/**/*.png
